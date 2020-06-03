@@ -3,25 +3,81 @@ IDEAL
 MODEL small
 STACK 100h
 DATASEG
-message db 13,"Enter grades:$"
-grades db 9 dup(0)
-catA db 9 dup(0)
-catB db 9 dup(0)
-catC db 9 dup(0)
+enterGrades db 13,"Enter grades:$"
+grades db 9 dup(99)
+; Default values so we know what NOT to print
+catA db 9 dup(99)
+catB db 9 dup(99)
+catC db 9 dup(99)
 CODESEG
 start:
     mov ax,@data
     mov ds,ax
    ;-----------
-    lea dx, [message]
+    lea dx, [enterGrades]
     mov ah, 09h
     int 21h
     mov bx,0
     call readGrades
     mov bx,0
     call sortGrades
+    mov bx,0
+    call printSortedGrades
    ;-----------
    jmp exit
+proc printSortedGrades
+    mov dl, 'C'
+    mov ah, 02h
+    int 21h
+    call printSpace
+
+    mov bx,0
+    @@printC:
+    mov dl,[catC+bx]
+    call printDlNum
+    inc bx
+    cmp bx,9
+    jnz @@printC
+
+    mov dl, 'B'
+    mov ah, 02h
+    int 21h
+    call printSpace
+
+    mov bx,0
+    @@printB:
+    mov dl,[catB+bx]
+    call printDlNum
+    inc bx
+    cmp bx,9
+    jnz @@printB
+
+    mov dl, 'A'
+    mov ah, 02h
+    int 21h
+    call printSpace
+
+    mov bx,0
+    @@printA:
+    mov dl,[catA+bx]
+    call printDlNum
+    inc bx
+    cmp bx,9
+    jnz @@printA
+    
+    ret
+endp
+; prints a number from dl if it's not 99
+proc printDlNum
+    cmp dl,99
+    jz @@end
+    add dl,48
+    mov ah, 02h
+    int 21h
+    call printSpace
+    @@end:
+    ret
+endp
 proc readGrades
     mov ah,01h
     int 21h
@@ -30,6 +86,22 @@ proc readGrades
     inc bx
     cmp bx,9
     jnz readGrades
+    call printNewline
+    ret
+endp
+proc printNewline
+    mov dl, 10
+    mov ah, 02h
+    int 21h
+    mov dl, 13
+    mov ah, 02h
+    int 21h
+    ret
+endp
+proc printSpace
+    mov dl, ' '
+    mov ah, 02h
+    int 21h
     ret
 endp
 proc sortGrades
