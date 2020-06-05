@@ -5,18 +5,24 @@ STACK 100h
 DATASEG
 enterGrades db 13,"Enter grades:$"
 grades db 9 dup(99)
-; Default values so we know what NOT to print
+
+; Default value is 99 so we know what NOT to print
 catA db 9 dup(99)
+catACount db 0
+
 catB db 9 dup(99)
+catBCount db 0
+
 catC db 9 dup(99)
+catCCount db 0
+
 CODESEG
 start:
     mov ax,@data
     mov ds,ax
    ;-----------
     lea dx, [enterGrades]
-    mov ah, 09h
-    int 21h
+    call printDXString
     mov bx,0
     call readGrades
     mov bx,0
@@ -27,9 +33,10 @@ start:
    jmp exit
 proc printSortedGrades
     mov dl, 'C'
-    mov ah, 02h
-    int 21h
+    call printDlChar
     call printSpace
+    mov dl,[catCCount]
+    call printDlNum
 
     mov bx,0
     @@printC:
@@ -40,9 +47,10 @@ proc printSortedGrades
     jnz @@printC
 
     mov dl, 'B'
-    mov ah, 02h
-    int 21h
+    call printDlChar
     call printSpace
+    mov dl,[catBCount]
+    call printDlNum
 
     mov bx,0
     @@printB:
@@ -53,10 +61,11 @@ proc printSortedGrades
     jnz @@printB
 
     mov dl, 'A'
-    mov ah, 02h
-    int 21h
+    call printDlChar
     call printSpace
-
+    mov dl,[catACount]
+    call printDlNum
+    
     mov bx,0
     @@printA:
     mov dl,[catA+bx]
@@ -67,7 +76,7 @@ proc printSortedGrades
     
     ret
 endp
-; prints a number from dl if it's not 99
+; prints a number from dl if it's not 99, and then a space
 proc printDlNum
     cmp dl,99 ; check if it's 99
     jz @@end
@@ -76,6 +85,18 @@ proc printDlNum
     int 21h
     call printSpace
     @@end:
+    ret
+endp
+; prints a string from dx
+proc printDXString
+    mov ah, 09h
+    int 21h
+    ret
+endp
+; prints a char from dl
+proc printDlChar
+    mov ah, 02h
+    int 21h
     ret
 endp
 proc readGrades ; reads 9 numbers (aka grades in this context) from user input
@@ -100,8 +121,7 @@ proc printNewline ; makes a new line
 endp
 proc printSpace ;  prints a space to seperate between stuff
     mov dl, ' '
-    mov ah, 02h
-    int 21h
+    call printDlChar
     ret
 endp
 proc sortGrades ; sorts grades to categories A,B,C accordingly
@@ -117,12 +137,17 @@ proc sortGrades ; sorts grades to categories A,B,C accordingly
 
     @@addToA:
     mov [catA+bx],al
+    inc [catACount]
     jmp @@sorted
+    
     @@addToB:
     mov [catB+bx],al
+    inc [catBCount]
     jmp @@sorted
+
     @@addToC:
     mov [catC+bx],al
+    inc [catCCount]
     jmp @@sorted
 
     @@sorted:
