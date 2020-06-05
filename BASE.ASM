@@ -69,16 +69,16 @@ proc printSortedGrades
 endp
 ; prints a number from dl if it's not 99
 proc printDlNum
-    cmp dl,99
+    cmp dl,99 ; check if it's 99
     jz @@end
-    add dl,48
+    add dl,48 ; make that number a character
     mov ah, 02h
     int 21h
     call printSpace
     @@end:
     ret
 endp
-proc readGrades
+proc readGrades ; reads 9 numbers (aka grades in this context) from user input
     mov ah,01h
     int 21h
     mov [grades+bx],al
@@ -89,7 +89,7 @@ proc readGrades
     call printNewline
     ret
 endp
-proc printNewline
+proc printNewline ; makes a new line
     mov dl, 10
     mov ah, 02h
     int 21h
@@ -98,13 +98,13 @@ proc printNewline
     int 21h
     ret
 endp
-proc printSpace
+proc printSpace ;  prints a space to seperate between stuff
     mov dl, ' '
     mov ah, 02h
     int 21h
     ret
 endp
-proc sortGrades
+proc sortGrades ; sorts grades to categories A,B,C accordingly
     mov al,[grades+bx]
     cmp al,8
     je @@addToA
