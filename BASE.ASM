@@ -4,6 +4,7 @@ MODEL small
 STACK 100h
 DATASEG
 enterGrades db 13,"Enter grades:$"
+avgStr db "AVG$"
 grades db 9 dup(99)
 
 ; Default value is 99 so we know what NOT to print
@@ -16,6 +17,11 @@ catBCount db 0
 catC db 9 dup(99)
 catCCount db 0
 
+evenNums db 0
+oddNums db 0
+
+avg db 0
+
 CODESEG
 start:
     mov ax,@data
@@ -24,6 +30,7 @@ start:
     lea dx, [enterGrades]
     call printDXString
     mov bx,0
+    mov cl,0 ; we're adding every grade to cl
     call readGrades
     mov bx,0
     call sortGrades
@@ -74,6 +81,25 @@ proc printSortedGrades
     cmp bx,9
     jnz @@printA
     
+    mov dl, 'P'
+    call printDlChar
+    call printSpace
+    mov dl,[evenNums]
+    call printDlNum
+
+    mov dl, 'E'
+    call printDlChar
+    call printSpace
+    mov dl,[oddNums]
+    call printDlNum
+    
+    lea dx,[avgStr]
+    call printDXString
+    call printSpace
+    
+    mov dl,[avg]
+    call printDlNum
+
     ret
 endp
 ; prints a number from dl if it's not 99, and then a space
@@ -104,10 +130,30 @@ proc readGrades ; reads 9 numbers (aka grades in this context) from user input
     int 21h
     mov [grades+bx],al
     sub [grades+bx],48
+    add cl,[grades+bx]
     inc bx
     cmp bx,9
     jnz readGrades
     call printNewline
+    mov [avg],cl
+    call calculateAvg
+    ret
+endp
+; calculates average
+proc calculateAvg
+    push ax
+    push cx
+    push dx
+    mov ax,0
+    mov al,[avg]
+    mov dx,0
+    mov cx,9
+    div cx
+    pop cx
+    mov [avg],al
+    pop dx
+    pop cx
+    pop ax
     ret
 endp
 proc printNewline ; makes a new line
@@ -136,26 +182,33 @@ proc sortGrades ; sorts grades to categories A,B,C accordingly
     jmp @@addToC
 
     @@addToA:
-    mov [catA+bx],al
-    inc [catACount]
-    jmp @@sorted
+        mov [catA+bx],al
+        inc [catACount]
+        jmp @@sorted
     
     @@addToB:
-    mov [catB+bx],al
-    inc [catBCount]
-    jmp @@sorted
+        mov [catB+bx],al
+        inc [catBCount]
+        jmp @@sorted
 
     @@addToC:
-    mov [catC+bx],al
-    inc [catCCount]
-    jmp @@sorted
+        mov [catC+bx],al
+        inc [catCCount]
+        jmp @@sorted
 
     @@sorted:
+        test al,1
+        jnz @@odd
+        jz @@even
+    @@odd:
+        inc [oddNums]
+        jmp @@end
+    @@even:
+        inc [evenNums]
+    @@end:
     inc bx
     cmp bx,9
     jnz sortGrades
-    jz @@end
-    @@end:
     ret
 endp
 
