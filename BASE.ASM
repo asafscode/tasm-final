@@ -38,10 +38,10 @@ start:
     call printSortedGrades
    ;-----------
    jmp exit
-proc printSortedGrades
-    mov dl, 'C'
-    call printDlChar
-    call printSpace
+
+proc printC
+    push bx
+    push dx
     mov dl,[catCCount]
     call printDlNum
 
@@ -52,10 +52,13 @@ proc printSortedGrades
         inc bx
         cmp bx,9
         jnz @@printC
-
-    mov dl, 'B'
-    call printDlChar
-    call printSpace
+    pop dx
+    pop bx
+    ret
+endp
+proc printB
+    push bx
+    push dx
     mov dl,[catBCount]
     call printDlNum
 
@@ -66,13 +69,16 @@ proc printSortedGrades
         inc bx
         cmp bx,9
         jnz @@printB
-
-    mov dl, 'A'
-    call printDlChar
-    call printSpace
+    pop dx
+    pop bx
+    ret
+endp
+proc printA
+    push bx
+    push dx
     mov dl,[catACount]
     call printDlNum
-    
+
     mov bx,0
     @@printA:
         mov dl,[catA+bx]
@@ -80,6 +86,25 @@ proc printSortedGrades
         inc bx
         cmp bx,9
         jnz @@printA
+    pop dx
+    pop bx
+    ret
+endp
+proc printSortedGrades
+    mov dl, 'C'
+    call printDlChar
+    call printSpace
+    call printC
+    
+    mov dl, 'B'
+    call printDlChar
+    call printSpace
+    call printB
+    
+    mov dl, 'A'
+    call printDlChar
+    call printSpace
+    call printA
     
     mov dl, 'P'
     call printDlChar
