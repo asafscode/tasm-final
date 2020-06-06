@@ -38,7 +38,6 @@ start:
     call printSortedGrades
    ;-----------
    jmp exit
-
 proc printC
     push bx
     push dx
