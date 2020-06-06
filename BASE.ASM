@@ -55,21 +55,31 @@ proc recvCommand
     je @@showCatA
     cmp al,'B'
     je @@showCatB
+    cmp al,'b'
+    je @@showCatB
+
     cmp al,'C'
     je @@showCatC
-    
+    cmp al,'c'
+    je @@showCatC
+
     cmp al,'P'
     ; show even grades
+    je @@printEven
+    cmp al,'p'
     je @@printEven
 
     cmp al,'E'
     ; show odd grades
     je @@printOdd
+    cmp al,'e'
+    je @@printOdd
     
     cmp al, 'V'
     ; show avg
-    mov dl,[avg]
-    call printDlNum
+    je @@printAvg
+    cmp al, 'v'
+    je @@printAvg
     jmp @@end
     @@showCatA:
         call printA
@@ -79,12 +89,16 @@ proc recvCommand
         jmp @@end
     @@showCatC:
         call printC
+        jmp @@end
     @@printEven:
         call printEvenGrades
         jmp @@end
     @@printOdd:
         call printOddGrades
         jmp @@end
+    @@printAvg:
+        mov dl,[avg]
+        call printDlNum
     @@end:
     ret
 endp
@@ -116,12 +130,30 @@ proc printOddGrades
     pop bx
     ret
 endp
-proc printC
-    push bx
+proc printCCount
     push dx
     mov dl,[catCCount]
     call printDlNum
-
+    pop dx
+    ret
+endp
+proc printBCount
+    push dx
+    mov dl,[catBCount]
+    call printDlNum
+    pop dx
+    ret
+endp
+proc printACount
+    push dx
+    mov dl,[catACount]
+    call printDlNum
+    pop dx
+    ret
+endp
+proc printC
+    push bx
+    push dx
     mov bx,0
     @@printC:
         mov dl,[catC+bx]
@@ -171,16 +203,19 @@ proc printSortedGrades
     mov dl, 'C'
     call printDlChar
     call printSpace
+    call printCCount
     call printC
     
     mov dl, 'B'
     call printDlChar
     call printSpace
+    call printBCount
     call printB
     
     mov dl, 'A'
     call printDlChar
     call printSpace
+    call printACount
     call printA
     
     mov dl, 'P'
