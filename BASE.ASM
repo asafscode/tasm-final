@@ -5,6 +5,7 @@ STACK 100h
 DATASEG
 enterGrades db 13,"Enter grades:$"
 avgStr db "AVG$"
+enterCommand db "Enter a command:$"
 grades db 9 dup(99)
 
 ; Default value is 99 so we know what NOT to print
@@ -17,8 +18,10 @@ catBCount db 0
 catC db 9 dup(99)
 catCCount db 0
 
-evenNums db 0
-oddNums db 0
+evenGrades db 9 dup(99)
+evenGradesCount db 0
+oddGrades db 9 dup(99)
+oddGradesCount db 0
 
 avg db 0
 
@@ -36,8 +39,83 @@ start:
     call sortGrades
     mov bx,0
     call printSortedGrades
+    call printNewline
+    lea dx, [enterCommand]
+    call printDXString
+    call printNewline
+    call recvCommand
    ;-----------
    jmp exit
+proc recvCommand
+    mov ah,01h
+    int 21h
+    call printNewline
+    cmp al,'A'
+    ; show category A grades, and so on...
+    je @@showCatA
+    cmp al,'B'
+    je @@showCatB
+    cmp al,'C'
+    je @@showCatC
+    
+    cmp al,'P'
+    ; show even grades
+    je @@printEven
+
+    cmp al,'E'
+    ; show odd grades
+    je @@printOdd
+    
+    cmp al, 'V'
+    ; show avg
+    mov dl,[avg]
+    call printDlNum
+    jmp @@end
+    @@showCatA:
+        call printA
+        jmp @@end
+    @@showCatB:
+        call printB
+        jmp @@end
+    @@showCatC:
+        call printC
+    @@printEven:
+        call printEvenGrades
+        jmp @@end
+    @@printOdd:
+        call printOddGrades
+        jmp @@end
+    @@end:
+    ret
+endp
+proc printEvenGrades
+    push bx
+    push dx
+    mov bx,0
+    @@print:
+        mov dl,[evenGrades+bx]
+        call printDlNum
+        inc bx
+        cmp bx,9
+        jnz @@print
+    pop dx
+    pop bx
+    ret
+endp
+proc printOddGrades
+    push bx
+    push dx
+    mov bx,0
+    @@print:
+        mov dl,[oddGrades+bx]
+        call printDlNum
+        inc bx
+        cmp bx,9
+        jnz @@print
+    pop dx
+    pop bx
+    ret
+endp
 proc printC
     push bx
     push dx
@@ -108,13 +186,13 @@ proc printSortedGrades
     mov dl, 'P'
     call printDlChar
     call printSpace
-    mov dl,[evenNums]
+    mov dl,[evenGradesCount]
     call printDlNum
 
     mov dl, 'E'
     call printDlChar
     call printSpace
-    mov dl,[oddNums]
+    mov dl,[oddGradesCount]
     call printDlNum
     
     lea dx,[avgStr]
@@ -181,12 +259,14 @@ proc calculateAvg
     ret
 endp
 proc printNewline ; makes a new line
+    push ax
     mov dl, 10
     mov ah, 02h
     int 21h
     mov dl, 13
     mov ah, 02h
     int 21h
+    pop ax
     ret
 endp
 proc printSpace ;  prints a space to seperate between stuff
@@ -225,10 +305,20 @@ proc sortGrades ; sorts grades to categories A,B,C accordingly
         jnz @@odd
         jz @@even
     @@odd:
-        inc [oddNums]
+        push bx
+        mov bx,0
+        mov bl,[oddGradesCount]
+        mov [oddGrades+bx],al
+        pop bx
+        inc [oddGradesCount]
         jmp @@end
     @@even:
-        inc [evenNums]
+        push bx
+        mov bx,0
+        mov bl,[evenGradesCount]
+        mov [evenGrades+bx],al
+        pop bx
+        inc [evenGradesCount]
     @@end:
         inc bx
         cmp bx,9
