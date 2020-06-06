@@ -47,11 +47,11 @@ proc printSortedGrades
 
     mov bx,0
     @@printC:
-    mov dl,[catC+bx]
-    call printDlNum
-    inc bx
-    cmp bx,9
-    jnz @@printC
+        mov dl,[catC+bx]
+        call printDlNum
+        inc bx
+        cmp bx,9
+        jnz @@printC
 
     mov dl, 'B'
     call printDlChar
@@ -61,11 +61,11 @@ proc printSortedGrades
 
     mov bx,0
     @@printB:
-    mov dl,[catB+bx]
-    call printDlNum
-    inc bx
-    cmp bx,9
-    jnz @@printB
+        mov dl,[catB+bx]
+        call printDlNum
+        inc bx
+        cmp bx,9
+        jnz @@printB
 
     mov dl, 'A'
     call printDlChar
@@ -75,11 +75,11 @@ proc printSortedGrades
     
     mov bx,0
     @@printA:
-    mov dl,[catA+bx]
-    call printDlNum
-    inc bx
-    cmp bx,9
-    jnz @@printA
+        mov dl,[catA+bx]
+        call printDlNum
+        inc bx
+        cmp bx,9
+        jnz @@printA
     
     mov dl, 'P'
     call printDlChar
@@ -130,7 +130,7 @@ proc readGrades ; reads 9 numbers (aka grades in this context) from user input
     int 21h
     mov [grades+bx],al
     sub [grades+bx],48
-    add cl,[grades+bx]
+    add cl,[grades+bx] ; adding every grade to cl to calculate avg
     inc bx
     cmp bx,9
     jnz readGrades
@@ -206,10 +206,10 @@ proc sortGrades ; sorts grades to categories A,B,C accordingly
     @@even:
         inc [evenNums]
     @@end:
-    inc bx
-    cmp bx,9
-    jnz sortGrades
-    ret
+        inc bx
+        cmp bx,9
+        jnz sortGrades
+        ret
 endp
 
 exit:
