@@ -111,8 +111,40 @@ proc recvCommand
         jmp @@end
     @@printHighLow:
         call printHighestGrade
+        call printNewline
+        call printLowestGrade
     @@end:
     ret
+endp
+proc printLowestGrade
+    push bx
+    push ax
+    push dx
+    mov bx,0
+    mov ax,0
+    mov al,[grades+3] ; a random element to compare against
+    @@iterate:
+        cmp [grades+bx],al
+        jg @@greaterOrEqual
+        jz @@greaterOrEqual
+        jmp @@smaller
+    @@greaterOrEqual:
+        inc bx
+        cmp bx,9
+        jz @@end
+        jmp @@iterate
+    @@smaller:
+        mov al,[grades+bx]
+        jmp @@greaterOrEqual ; avoid duplicate code
+    @@end:
+        lea dx,[smallestGrade]
+        call printDXString
+        mov dl,al
+        call printDlNum
+        pop dx
+        pop ax 
+        pop bx
+        ret
 endp
 proc printHighestGrade
     push bx
