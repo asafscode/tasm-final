@@ -43,18 +43,21 @@ start:
     mov bx,0
     call printSortedGrades
     call printNewline
-    lea dx, [enterCommand]
-    push dx
-    call printString
-    call printNewline
     call recvCommand
    ;-----------
    jmp exit
 proc recvCommand
+    lea dx, [enterCommand]
+    push dx
+    call printString
+    call printNewline
     mov ah,01h
     int 21h
     call printNewline
     cmp al,'A'
+    ; show category A grades, and so on...
+    je @@showCatA
+    cmp al,'a'
     ; show category A grades, and so on...
     je @@showCatA
     cmp al,'B'
@@ -91,31 +94,44 @@ proc recvCommand
     cmp al, 'x'
     je @@printHighLow
 
-    jmp @@end
+    cmp al, '#'
+    ; bye
+    je @@end
+
+    jmp recvCommand
+    
     @@showCatA:
         call printA
-        jmp @@end
+        call printNewline
+        jmp recvCommand
     @@showCatB:
         call printB
-        jmp @@end
+        call printNewline
+        jmp recvCommand
     @@showCatC:
         call printC
-        jmp @@end
+        call printNewline
+        jmp recvCommand
     @@printEven:
         call printEvenGrades
-        jmp @@end
+        call printNewline
+        jmp recvCommand
     @@printOdd:
         call printOddGrades
-        jmp @@end
+        call printNewline
+        jmp recvCommand
     @@printAvg:
         mov dl,[avg]
         push dx
         call printNum
-        jmp @@end
+        call printNewline
+        jmp recvCommand
     @@printHighLow:
         call printHighestGrade
         call printNewline
         call printLowestGrade
+        call printNewline
+        jmp recvCommand
     @@end:
     ret
 endp
