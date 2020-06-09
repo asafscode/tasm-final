@@ -268,10 +268,6 @@ endp
 proc printB
     push bx
     push dx
-    mov dl,[catBCount]
-    push dx
-    call printNum
-
     mov bx,0
     @@printB:
         mov dl,[catB+bx]
@@ -287,10 +283,6 @@ endp
 proc printA
     push bx
     push dx
-    mov dl,[catACount]
-    push dx
-    call printNum
-
     mov bx,0
     @@printA:
         mov dl,[catA+bx]
