@@ -254,6 +254,8 @@ proc printC
     push bx
     push dx
     mov bx,0
+    cmp [catCCount],0
+    jz @@end
     @@printC:
         mov dl,[catC+bx]
         push dx
@@ -261,14 +263,17 @@ proc printC
         inc bx
         cmp bx,9
         jnz @@printC
-    pop dx
-    pop bx
-    ret
+    @@end:
+        pop dx
+        pop bx
+        ret
 endp
 proc printB
     push bx
     push dx
     mov bx,0
+    cmp [catBCount],0
+    jz @@end
     @@printB:
         mov dl,[catB+bx]
         push dx
@@ -276,14 +281,17 @@ proc printB
         inc bx
         cmp bx,9
         jnz @@printB
-    pop dx
-    pop bx
-    ret
+    @@end:
+        pop dx
+        pop bx
+        ret
 endp
 proc printA
     push bx
     push dx
     mov bx,0
+    cmp [catACount],0
+    jz @@end
     @@printA:
         mov dl,[catA+bx]
         push dx
@@ -291,9 +299,10 @@ proc printA
         inc bx
         cmp bx,9
         jnz @@printA
-    pop dx
-    pop bx
-    ret
+    @@end:
+        pop dx
+        pop bx
+        ret
 endp
 proc printSortedGrades
     mov dl, 'C'
