@@ -6,6 +6,8 @@ DATASEG
 enterGrades db 13,"Enter grades:$"
 avgStr db "AVG$"
 enterCommand db "Enter a command:$"
+biggestGrade db "Biggest grade: $"
+smallestGrade db "Smallest grade: $"
 grades db 9 dup(99)
 
 ; Default value is 99 so we know what NOT to print
@@ -80,6 +82,13 @@ proc recvCommand
     je @@printAvg
     cmp al, 'v'
     je @@printAvg
+    
+    cmp al, 'X'
+    ; show avg
+    je @@printHighLow
+    cmp al, 'x'
+    je @@printHighLow
+
     jmp @@end
     @@showCatA:
         call printA
@@ -99,8 +108,38 @@ proc recvCommand
     @@printAvg:
         mov dl,[avg]
         call printDlNum
+        jmp @@end
+    @@printHighLow:
+        call printHighestGrade
     @@end:
     ret
+endp
+proc printHighestGrade
+    push bx
+    push ax
+    push dx
+    mov bx,0
+    mov ax,0
+    @@iterate:
+        cmp [grades+bx],al
+        jg @@greater
+        inc bx
+        cmp bx,9
+        jnz @@iterate
+        jz @@end
+    @@greater:
+        mov al,[grades+bx]
+        inc bx
+        jmp @@iterate
+    @@end:
+        lea dx,[biggestGrade]
+        call printDXString
+        mov dl,al
+        call printDlNum
+        pop dx
+        pop ax 
+        pop bx
+        ret
 endp
 proc printEvenGrades
     push bx
