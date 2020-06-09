@@ -33,7 +33,8 @@ start:
     mov ds,ax
    ;-----------
     lea dx, [enterGrades]
-    call printDXString
+    push dx
+    call printString
     mov bx,0
     mov cl,0 ; we're adding every grade to cl
     call readGrades
@@ -43,7 +44,8 @@ start:
     call printSortedGrades
     call printNewline
     lea dx, [enterCommand]
-    call printDXString
+    push dx
+    call printString
     call printNewline
     call recvCommand
    ;-----------
@@ -107,7 +109,8 @@ proc recvCommand
         jmp @@end
     @@printAvg:
         mov dl,[avg]
-        call printDlNum
+        push dx
+        call printNum
         jmp @@end
     @@printHighLow:
         call printHighestGrade
@@ -138,9 +141,11 @@ proc printLowestGrade
         jmp @@greaterOrEqual ; avoid duplicate code
     @@end:
         lea dx,[smallestGrade]
-        call printDXString
+        push dx
+        call printString
         mov dl,al
-        call printDlNum
+        push dx
+        call printNum
         pop dx
         pop ax 
         pop bx
@@ -165,9 +170,11 @@ proc printHighestGrade
         jmp @@iterate
     @@end:
         lea dx,[biggestGrade]
-        call printDXString
+        push dx
+        call printString
         mov dl,al
-        call printDlNum
+        push dx
+        call printNum
         pop dx
         pop ax 
         pop bx
@@ -179,7 +186,8 @@ proc printEvenGrades
     mov bx,0
     @@print:
         mov dl,[evenGrades+bx]
-        call printDlNum
+        push dx
+        call printNum
         inc bx
         cmp bx,9
         jnz @@print
@@ -193,7 +201,8 @@ proc printOddGrades
     mov bx,0
     @@print:
         mov dl,[oddGrades+bx]
-        call printDlNum
+        push dx
+        call printNum
         inc bx
         cmp bx,9
         jnz @@print
@@ -204,21 +213,24 @@ endp
 proc printCCount
     push dx
     mov dl,[catCCount]
-    call printDlNum
+    push dx
+    call printNum
     pop dx
     ret
 endp
 proc printBCount
     push dx
     mov dl,[catBCount]
-    call printDlNum
+    push dx
+    call printNum
     pop dx
     ret
 endp
 proc printACount
     push dx
     mov dl,[catACount]
-    call printDlNum
+    push dx
+    call printNum
     pop dx
     ret
 endp
@@ -228,7 +240,8 @@ proc printC
     mov bx,0
     @@printC:
         mov dl,[catC+bx]
-        call printDlNum
+        push dx
+        call printNum
         inc bx
         cmp bx,9
         jnz @@printC
@@ -240,12 +253,14 @@ proc printB
     push bx
     push dx
     mov dl,[catBCount]
-    call printDlNum
+    push dx
+    call printNum
 
     mov bx,0
     @@printB:
         mov dl,[catB+bx]
-        call printDlNum
+        push dx
+        call printNum
         inc bx
         cmp bx,9
         jnz @@printB
@@ -257,12 +272,14 @@ proc printA
     push bx
     push dx
     mov dl,[catACount]
-    call printDlNum
+    push dx
+    call printNum
 
     mov bx,0
     @@printA:
         mov dl,[catA+bx]
-        call printDlNum
+        push dx
+        call printNum
         inc bx
         cmp bx,9
         jnz @@printA
@@ -293,25 +310,33 @@ proc printSortedGrades
     call printDlChar
     call printSpace
     mov dl,[evenGradesCount]
-    call printDlNum
+    push dx
+    call printNum
 
     mov dl, 'E'
     call printDlChar
     call printSpace
     mov dl,[oddGradesCount]
-    call printDlNum
+    push dx
+    call printNum
     
     lea dx,[avgStr]
-    call printDXString
+    push dx
+    call printString
     call printSpace
     
     mov dl,[avg]
-    call printDlNum
+    push dx
+    call printNum
 
     ret
 endp
 ; prints a number from dl if it's not 99, and then a space
-proc printDlNum
+proc printNum
+    push bp
+    mov bp, sp
+    add sp, 2
+    mov dx, [bp+4]
     cmp dl,99 ; check if it's 99
     jz @@end
     add dl,48 ; make that number a character
@@ -319,13 +344,21 @@ proc printDlNum
     int 21h
     call printSpace
     @@end:
-    ret
+    mov sp, bp
+    pop bp
+    ret 2
 endp
 ; prints a string from dx
-proc printDXString
+proc printString
+    push bp
+    mov bp, sp
+    add sp, 2
+    mov dx, [bp+4]
     mov ah, 09h
     int 21h
-    ret
+    mov sp, bp
+    pop bp
+    ret 2
 endp
 ; prints a char from dl
 proc printDlChar
