@@ -56,46 +56,47 @@ proc recvCommand
     call printNewline
     cmp al,'A'
     ; show category A grades, and so on...
-    je @@showCatA
+    jz @@showCatA
     cmp al,'a'
-    je @@showCatA
+    jz @@showCatA
+
     cmp al,'B'
-    je @@showCatB
+    jz @@showCatB
     cmp al,'b'
-    je @@showCatB
+    jz @@showCatB
 
     cmp al,'C'
-    je @@showCatC
+    jz @@showCatC
     cmp al,'c'
-    je @@showCatC
+    jz @@showCatC
 
     cmp al,'P'
     ; show even grades
-    je @@printEven
+    jz @@printEven
     cmp al,'p'
-    je @@printEven
+    jz @@printEven
 
     cmp al,'E'
     ; show odd grades
-    je @@printOdd
+    jz @@printOdd
     cmp al,'e'
-    je @@printOdd
+    jz @@printOdd
     
     cmp al, 'V'
     ; show avg
-    je @@printAvg
+    jz @@printAvg
     cmp al, 'v'
-    je @@printAvg
+    jz @@printAvg
     
     cmp al, 'X'
     ; show avg
-    je @@printHighLow
+    jz @@printHighLow
     cmp al, 'x'
-    je @@printHighLow
+    jz @@printHighLow
 
     cmp al, '#'
     ; bye
-    je @@end
+    jz @@end
 
     jmp recvCommand
     
@@ -431,12 +432,12 @@ endp
 proc sortGrades ; sorts grades to categories A,B,C accordingly
     mov al,[grades+bx]
     cmp al,8
-    je @@addToA
+    jz @@addToA
     jg @@addToA
     cmp al,7
-    je @@addToB
+    jz @@addToB
     cmp al,6
-    je @@addToB
+    jz @@addToB
     jmp @@addToC
 
     @@addToA:
