@@ -58,7 +58,6 @@ proc recvCommand
     ; show category A grades, and so on...
     je @@showCatA
     cmp al,'a'
-    ; show category A grades, and so on...
     je @@showCatA
     cmp al,'B'
     je @@showCatB
