@@ -170,7 +170,7 @@ proc findLowestGrade ; finds the lowest grade, return value in al, number index 
     push dx
     mov bx,0
     mov ax,0
-    mov al,[grades+3] ; a random element to compare against
+    mov al,99 ; an initial value that is impossible for the user to enter
     @@iterate:
         cmp [grades+bx],al
         jg @@greaterOrEqual
