@@ -159,9 +159,7 @@ proc recvCommand
     @@printHighLow:
         call printHighestGrade
         call printNewline
-        call findLowestGrade
-        push ax
-        call printNum
+        call printSmallestGrade
         call printNewline
         jmp recvCommand
     @@end:
@@ -194,32 +192,25 @@ proc findLowestGrade ; finds the lowest grade, return value in al, number index 
 endp
 proc printHighestGrade
     push bx
-    push ax
+    lea dx,[biggestGrade]
     push dx
-    mov bx,0
-    mov ax,0
-    @@iterate:
-        cmp [grades+bx],al
-        jg @@greater
-        inc bx
-        cmp bx,9
-        jnz @@iterate
-        jz @@end
-    @@greater:
-        mov al,[grades+bx]
-        inc bx
-        jmp @@iterate
-    @@end:
-        lea dx,[biggestGrade]
-        push dx
-        call printString
-        mov dl,al
-        push dx
-        call printNum
-        pop dx
-        pop ax 
-        pop bx
-        ret
+    call printString
+    mov dl,[gradesLH+8]
+    push dx
+    call printNum
+    pop dx
+    ret
+endp
+proc printSmallestGrade
+    push bx
+    lea dx,[smallestGrade]
+    push dx
+    call printString
+    mov dl,[gradesLH+0]
+    push dx
+    call printNum
+    pop dx
+    ret
 endp
 proc printEvenGrades
     push bx
