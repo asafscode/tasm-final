@@ -10,6 +10,9 @@ biggestGrade db "Biggest grade: $"
 smallestGrade db "Smallest grade: $"
 grades db 9 dup(99)
 
+gradesLH db 9 dup(99) ; grades sorted from low to high
+gradesLHCount db 0
+
 ; Default value is 99 so we know what NOT to print
 catA db 9 dup(99)
 catACount db 0
@@ -39,6 +42,7 @@ start:
     mov cl,0 ; we're adding every grade to cl
     call readGrades
     mov bx,0
+    call sortGradesLH
     call sortGrades
     mov bx,0
     call printSortedGrades
@@ -46,6 +50,32 @@ start:
     call recvCommand
    ;-----------
    jmp exit
+proc sortGradesLH
+    push ax
+    push cx
+    push bx
+    mov bx,0
+    @@iterate:
+        call findLowestGrade
+        push bx
+        mov bl,[gradesLHCount]
+        mov [gradesLH+bx],al
+        inc [gradesLHCount]
+        pop bx
+        push bx
+        mov bx,cx
+        mov [grades+bx],99
+        pop bx
+        cmp bx,9
+        jz @@end
+        inc bx
+        jmp @@iterate
+    @@end:
+        pop bx
+        pop cx
+        pop ax
+        ret
+endp
 proc recvCommand
     lea dx, [enterCommand]
     push dx
@@ -129,15 +159,16 @@ proc recvCommand
     @@printHighLow:
         call printHighestGrade
         call printNewline
-        call printLowestGrade
+        call findLowestGrade
+        push ax
+        call printNum
         call printNewline
         jmp recvCommand
     @@end:
     ret
 endp
-proc printLowestGrade
+proc findLowestGrade ; finds the lowest grade, return value in al, number index in cx
     push bx
-    push ax
     push dx
     mov bx,0
     mov ax,0
@@ -153,17 +184,11 @@ proc printLowestGrade
         jz @@end
         jmp @@iterate
     @@smaller:
+        mov cx,bx
         mov al,[grades+bx]
         jmp @@greaterOrEqual ; avoid duplicate code
     @@end:
-        lea dx,[smallestGrade]
-        push dx
-        call printString
-        mov dl,al
-        push dx
-        call printNum
         pop dx
-        pop ax 
         pop bx
         ret
 endp
@@ -431,7 +456,7 @@ proc printSpace ;  prints a space to seperate between stuff
     ret
 endp
 proc sortGrades ; sorts grades to categories A,B,C accordingly
-    mov al,[grades+bx]
+    mov al,[gradesLH+bx]
     cmp al,8
     jz @@addToA
     jg @@addToA
